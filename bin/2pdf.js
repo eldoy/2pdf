@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 const { read } = require('extras')
-var pdf = require('html-pdf')
+const puppeteer = require('puppeteer')
+const io = require('../lib/io.js')
 
-const OPTIONS = { format: 'Letter' }
+const OPTIONS = {}
 
 function getOptions() {
   const dirs = [
@@ -24,60 +25,32 @@ function getOptions() {
 
 function usage() {
   console.log([
-    '\nUsage: 2pdf [input1:output1] [input2:output2]'
+    '\nUsage: 2pdf [input] [output]'
   ].join('\n'))
   process.exit(0)
 }
 
-const files = process.argv.slice(2)
-if (!files.length) usage()
+let input = io(process.argv[2])
+let output = process.argv[3]
+if (!input || !output) usage()
 
-const options = { ...OPTIONS, ...getOptions() }
+const options = { path: output, ...OPTIONS, ...getOptions() }
 
-function create(html, output) {
-  return new Promise((resolve, reject) => {
-    function result(err, res) {
-      if (err) reject(err)
-      resolve(res)
-    }
-    pdf.create(html, options).toFile(output, result)
-  })
-}
-
-function getHTML(file) {
-  try {
-    return read(file)
-  } catch(e) {
-    console.log(`Can't read file ${file}, skipping it...`)
-  }
-  return ''
-}
-
-function getIO(file) {
-  let [input, output] = file.split(':')
-  if (!input.endsWith('.html')) {
-    input += '.html'
-  }
-  if (!output) {
-    output = input.replace(/\.html$/, '.pdf')
-  }
-  if (!output.endsWith('.pdf')) {
-    output += '.pdf'
-  }
-  return [input, output]
+async function create() {
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
+  await page.goto(input, { waitUntil: 'networkidle0' })
+  await page.pdf(options)
+  await browser.close()
 }
 
 async function run() {
-  for (const file of files) {
-    let [input, output] = getIO(file)
-    console.log(`Processing ${input} > ${output}...`)
-    const html = getHTML(input)
-    try {
-      await create(html, output || input)
-    } catch(e) {
-      console.log(`Can't create pdf for ${input}, skipping it...`)
-      console.log(e.message)
-    }
+  console.log(`${input} > ${output}`)
+  try {
+    await create()
+  } catch(e) {
+    console.log(`Can't create pdf for ${input}, skipping it...`)
+    console.log(e.message)
   }
   process.exit(0)
 }
