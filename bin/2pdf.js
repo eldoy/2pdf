@@ -1,53 +1,24 @@
 #!/usr/bin/env node
-const { read } = require('extras')
-const puppeteer = require('puppeteer')
+const usage = require('../lib/usage.js')
 const io = require('../lib/io.js')
+const config = require('../lib/config.js')
+const create = require('../lib/create.js')
 
-const OPTIONS = {}
-
-function getOptions() {
-  const dirs = [
-    './',
-    '~/',
-    '~/.config/'
-  ]
-
-  const types = ['json', 'yml']
-
-  for (const dir of dirs) {
-    for (const type of types) {
-      try {
-       return read(`${dir}2pdf.${type}`)
-      } catch(e) {}
-    }
-  }
-}
-
-function usage() {
-  console.log([
-    '\nUsage: 2pdf [input] [output]'
-  ].join('\n'))
-  process.exit(0)
+const OPTIONS = {
+  displayHeaderFooter: true,
+  printBackground: true
 }
 
 let input = io(process.argv[2])
 let output = process.argv[3]
 if (!input || !output) usage()
 
-const options = { path: output, ...OPTIONS, ...getOptions() }
-
-async function create() {
-  const browser = await puppeteer.launch()
-  const page = await browser.newPage()
-  await page.goto(input, { waitUntil: 'networkidle0' })
-  await page.pdf(options)
-  await browser.close()
-}
+const options = { path: output, ...OPTIONS, ...config('2pdf') }
 
 async function run() {
   console.log(`${input} > ${output}`)
   try {
-    await create()
+    await create(input, options)
   } catch(e) {
     console.log(`Can't create pdf for ${input}, skipping it...`)
     console.log(e.message)
