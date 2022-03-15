@@ -1,0 +1,19 @@
+{
+  "name": "2pdf",
+  "version": "0.1.0",
+  "description": "HTML to PDF command line tool",
+  "main": "index.js",
+  "bin": {
+    "2pdf": "bin/2pdf.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eldoy/2pdf"
+  },
+  "author": "Vidar Eldøy <vidar@eldoy.com>",
+  "license": "MIT",
+  "dependencies": {
+    "extras": "^0.10.5",
+    "html-pdf": "^3.0.1"
+  }
+}
