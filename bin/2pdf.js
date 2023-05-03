@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+
+process.env.PUPPETEER_DISABLE_HEADLESS_WARNING = true
+
 const usage = require('../lib/usage.js')
 const io = require('../lib/io.js')
 const config = require('../lib/config.js')
@@ -19,7 +22,7 @@ async function run() {
   console.log(`${input} > ${output}`)
   try {
     await create(input, options)
-  } catch(e) {
+  } catch (e) {
     console.log(`Can't create pdf for ${input}, skipping it...`)
     console.log(e.message)
   }
