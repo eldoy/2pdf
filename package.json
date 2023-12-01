@@ -1,6 +1,6 @@
 {
   "name": "2pdf",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "HTML to PDF command line tool",
   "main": "index.js",
   "bin": {
