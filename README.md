@@ -18,7 +18,7 @@ npm i -g 2pdf
 
 ### Troubleshooting
 
-On Debian systems you need `libnss3` installed:
+On Debian systems you need these libraries installed:
 
 ```
 apt install libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libgbm1 libasound2 libpangocairo-1.0-0 libxss1 libgtk-3-0
