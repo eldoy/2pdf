@@ -13,7 +13,7 @@
   "author": "Vidar Eldøy <vidar@eldoy.com>",
   "license": "MIT",
   "dependencies": {
-    "extras": "^0.12.1",
-    "puppeteer": "^21.5.2"
+    "extras": "^0.16.0",
+    "puppeteer": "^23.4.1"
   }
 }
