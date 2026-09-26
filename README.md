@@ -16,6 +16,35 @@ npm i -g 2pdf
 2pdf input.html output.pdf
 ```
 
+### Programmatic usage
+
+Install locally with `npm i 2pdf`, then call `pdf(input, output, options)`.
+Local HTML paths and HTTP/HTTPS URLs are supported. Options are optional.
+
+```js
+var pdf = require('2pdf')
+
+async function run() {
+  try {
+    await pdf('invoice.html', 'invoice.pdf', { format: 'A4' })
+    await pdf('https://example.com', 'page.pdf')
+  } catch (err) {
+    console.error(err.message)
+  }
+}
+
+run()
+```
+
+The Promise resolves when the PDF is written. It rejects for HTTP status 400
+or higher on the final page response, navigation failures, or PDF write errors.
+Redirects are followed. The browser is closed after conversion or failure.
+The CLI reports these failures with exit code 1.
+
+Both interfaces enable headers/footers and background printing by default.
+Config file options override defaults, and API options override config options.
+The output argument always takes precedence over the `path` option.
+
 ### Configuration
 
 PDF options can be set in `2pdf.json`. The first file found is used, searching

@@ -93,3 +93,30 @@ test('malformed config fails with a nonzero exit status', async t => {
       return true
     })
 })
+
+test('HTTP errors after redirects fail without creating a PDF', async t => {
+  var { cwd, run } = await setup(t)
+  var server = createServer((req, res) => {
+    if (req.url === '/redirect') {
+      res.writeHead(302, { Location: '/404' })
+    } else {
+      res.writeHead(Number(req.url.slice(1)) || 404)
+    }
+    res.end('Error page')
+  })
+  server.listen(0, '127.0.0.1')
+  await once(server, 'listening')
+  t.after(() => new Promise(resolve => server.close(resolve)))
+  var base = `http://127.0.0.1:${server.address().port}`
+  for (var route of ['/redirect', '/500']) {
+    var status = route === '/redirect' ? 404 : 500
+    await assert.rejects(run(`${base}${route}`, 'error.pdf'), error => {
+      assert.equal(error.code, 1)
+      assert.ok(error.stderr.includes(`HTTP ${status} for ${base}/${status}`))
+      return true
+    })
+    await assert.rejects(readFile(path.join(cwd, 'error.pdf')), {
+      code: 'ENOENT'
+    })
+  }
+})

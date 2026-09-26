@@ -7,7 +7,10 @@ test('conversion navigates, uses screen media, and passes PDF options', async t 
   var calls = []
   var options = { path: 'output.pdf', format: 'A4' }
   var page = {
-    goto: async (...args) => calls.push(['goto', ...args]),
+    goto: async (...args) => {
+      calls.push(['goto', ...args])
+      return { status: () => 200 }
+    },
     emulateMediaType: async value => calls.push(['media', value]),
     pdf: async value => calls.push(['pdf', value])
   }
@@ -50,4 +53,25 @@ test('browser launch failures propagate', async t => {
   var failure = new Error('launch failed')
   t.mock.method(puppeteer, 'launch', async () => { throw failure })
   await assert.rejects(create('file:///document.html', {}), failure)
+})
+
+var statuses = [404, 500]
+statuses.forEach(status => {
+  test(`HTTP ${status} rejects without writing a PDF and closes browser`, async t => {
+    var closed = false
+    t.mock.method(puppeteer, 'launch', async () => ({
+      newPage: async () => ({
+        goto: async () => ({
+          status: () => status,
+          url: () => 'https://example.com/error'
+        }),
+        pdf: async () => assert.fail('Must not write an error page')
+      }),
+      close: async () => { closed = true }
+    }))
+    await assert.rejects(create('https://example.com/error', {}), {
+      message: `HTTP ${status} for https://example.com/error`
+    })
+    assert.equal(closed, true)
+  })
 })
