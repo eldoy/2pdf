@@ -1,32 +1,29 @@
 #!/usr/bin/env node
 
-process.env.PUPPETEER_DISABLE_HEADLESS_WARNING = true
+var usage = require('../lib/usage.js')
+var io = require('../lib/io.js')
+var config = require('../lib/config.js')
+var create = require('../lib/create.js')
 
-const usage = require('../lib/usage.js')
-const io = require('../lib/io.js')
-const config = require('../lib/config.js')
-const create = require('../lib/create.js')
-
-const OPTIONS = {
+var OPTIONS = {
   displayHeaderFooter: true,
   printBackground: true
 }
 
-let input = io(process.argv[2])
-let output = process.argv[3]
+var input = io(process.argv[2])
+var output = process.argv[3]
 if (!input || !output) usage()
-
-const options = { path: output, ...OPTIONS, ...config('2pdf') }
 
 async function run() {
   console.log(`${input} > ${output}`)
   try {
+    var options = { ...OPTIONS, ...config('2pdf'), path: output }
     await create(input, options)
   } catch (e) {
-    console.log(`Can't create pdf for ${input}, skipping it...`)
-    console.log(e.message)
+    console.error(`Can't create pdf for ${input}, skipping it...`)
+    console.error(e.message)
+    process.exitCode = 1
   }
-  process.exit(0)
 }
 
 run()

@@ -16,6 +16,27 @@ npm i -g 2pdf
 2pdf input.html output.pdf
 ```
 
+### Configuration
+
+PDF options can be set in `2pdf.json`. The first file found is used, searching
+in the current directory, your home directory, then `~/.config/`.
+Invalid JSON is reported as an error. YAML configuration is no longer supported.
+The command-line output path takes precedence over a configured `path`.
+
+```json
+{
+  "format": "A4",
+  "printBackground": true,
+  "displayHeaderFooter": false
+}
+```
+
+### Tests
+
+Requires Node.js 18 or newer. Install dependencies with `npm install`, then run
+`npm test`. Tests include real Chromium conversions using local fixtures and a
+local HTTP server; no external websites are needed.
+
 ### Troubleshooting
 
 On Debian systems you need these libraries installed:
